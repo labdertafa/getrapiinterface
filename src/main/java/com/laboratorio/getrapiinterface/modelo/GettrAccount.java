@@ -1,5 +1,7 @@
 package com.laboratorio.getrapiinterface.modelo;
 
+import com.laboratorio.getrapiinterface.utiles.GettrApiConfig;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,6 +36,46 @@ public class GettrAccount {
     private String _id;
     private String vrf;
     // private GettrPremium premium;
+    
+    public boolean isSeguidorPotencial() {
+        if (this.flg < 2) {
+            return false;
+        }
+
+        return 2 * this.flw >= this.flg;
+    }
+    
+    public boolean isFuenteSeguidores() {
+        GettrApiConfig config = GettrApiConfig.getInstance();
+        int umbral = Integer.parseInt(config.getProperty("umbral_fuente_seguidores"));
+        return this.flg >= umbral;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 29 * hash + Objects.hashCode(this.username);
+        hash = 29 * hash + Objects.hashCode(this._id);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final GettrAccount other = (GettrAccount) obj;
+        if (!Objects.equals(this.username, other.username)) {
+            return false;
+        }
+        return Objects.equals(this._id, other._id);
+    }
 
     @Override
     public String toString() {
