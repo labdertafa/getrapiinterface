@@ -11,14 +11,13 @@ import com.laboratorio.getrapiinterface.modelo.response.GettrAccountListResponse
 import com.laboratorio.getrapiinterface.modelo.response.GettrAccountResponse;
 import com.laboratorio.getrapiinterface.modelo.response.GettrFollowResponse;
 import com.laboratorio.getrapiinterface.modelo.response.GettrRelationshipResponse;
-import java.util.List;
 
 /**
  *
  * @author Rafael
  * @version 1.0
  * @created 05/09/2024
- * @updated 08/09/2024
+ * @updated 09/09/2024
  */
 public class GettrAccountApiImpl extends GettrBaseApi implements GettrAccountApi {
     public GettrAccountApiImpl(String accountId, String accessToken) {
@@ -54,12 +53,17 @@ public class GettrAccountApiImpl extends GettrBaseApi implements GettrAccountApi
 
     @Override
     public GettrAccountListResponse getFollowers(String userId, int quantity) {
+        return this.getFollowers(userId, quantity, null);
+    }
+    
+    @Override
+    public GettrAccountListResponse getFollowers(String userId, int quantity, String posicionInicial) {
         String endpoint = this.apiConfig.getProperty("getFollowers_endpoint");
         String complementoUrl = this.apiConfig.getProperty("getFollowers_complemento_url");
         int okStatus = Integer.parseInt(this.apiConfig.getProperty("getFollowers_ok_status"));
         String uri = endpoint + "/" + userId + "/" + complementoUrl;
         
-        return this.getAccountList(uri, okStatus, quantity, null);
+        return this.getAccountList(uri, okStatus, quantity, posicionInicial);
     }
 
     @Override
@@ -69,12 +73,17 @@ public class GettrAccountApiImpl extends GettrBaseApi implements GettrAccountApi
 
     @Override
     public GettrAccountListResponse getFollowings(String userId, int quantity) {
+        return this.getFollowings(userId, quantity, null);
+    }
+    
+    @Override
+    public GettrAccountListResponse getFollowings(String userId, int quantity, String posicionInicial) {
         String endpoint = this.apiConfig.getProperty("getFollowings_endpoint");
         String complementoUrl = this.apiConfig.getProperty("getFollowings_complemento_url");
         int okStatus = Integer.parseInt(this.apiConfig.getProperty("getFollowings_ok_status"));
         String uri = endpoint + "/" + userId + "/" + complementoUrl;
         
-        return this.getAccountList(uri, okStatus, quantity, null);
+        return this.getAccountList(uri, okStatus, quantity, posicionInicial);
     }
 
     @Override

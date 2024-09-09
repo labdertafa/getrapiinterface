@@ -56,7 +56,7 @@ public class GettrAccountApiTest {
     public void getFollowers() {
         String username = "rimugu";
         
-        List<GettrAccount> accounts = accountApi.getFollowers(username);
+        List<GettrAccount> accounts = accountApi.getFollowers(username).getAccounts();
         
         assertTrue(accounts.size() > 80);
     }
@@ -74,7 +74,7 @@ public class GettrAccountApiTest {
     public void getFollowings() {
         String username = "rimugu";
         
-        List<GettrAccount> accounts = accountApi.getFollowings(username);
+        List<GettrAccount> accounts = accountApi.getFollowings(username).getAccounts();
         
         assertTrue(accounts.size() > 50);
     }

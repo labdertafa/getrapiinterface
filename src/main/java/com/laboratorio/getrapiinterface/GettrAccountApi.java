@@ -9,16 +9,18 @@ import com.laboratorio.getrapiinterface.modelo.response.GettrAccountListResponse
  * @author Rafael
  * @version 1.0
  * @created 05/09/2024
- * @updated 08/09/2024
+ * @updated 09/09/2024
  */
 public interface GettrAccountApi {
     GettrAccount getAccountByUsername(String username);
     
     GettrAccountListResponse getFollowers(String userId);
     GettrAccountListResponse getFollowers(String userId, int quantity);
+    GettrAccountListResponse getFollowers(String userId, int quantity, String posicionInicial);
     
     GettrAccountListResponse getFollowings(String userId);
     GettrAccountListResponse getFollowings(String userId, int quantity);
+    GettrAccountListResponse getFollowings(String userId, int quantity, String posicionInicial);
     
     // Seguir a un usuario
     boolean followAccount(String userId);
