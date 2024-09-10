@@ -12,7 +12,7 @@ import lombok.Setter;
  * @author Rafael
  * @version 1.0
  * @created 05/09/2024
- * @updated 05/09/2024
+ * @updated 09/09/2024
  */
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
@@ -38,6 +38,11 @@ public class GettrAccount {
     // private GettrPremium premium;
     
     public boolean isSeguidorPotencial() {
+        String accountId = GettrApiConfig.getInstance().getProperty("usuario_gettr");
+        if (this._id.equals(accountId)) {
+            return false;
+        }
+        
         if (this.flg < 2) {
             return false;
         }
