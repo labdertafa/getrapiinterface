@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * @author Rafael
  * @version 1.0
  * @created 10/09/2024
- * @updated 10/09/2024
+ * @updated 23/09/2024
  */
 public class GettrNotificationApiImpl extends GettrBaseApi implements GettrNotificationApi {
     public GettrNotificationApiImpl(String accountId, String accessToken) {
@@ -66,7 +66,7 @@ public class GettrNotificationApiImpl extends GettrBaseApi implements GettrNotif
             logException(e);
             throw e;
         } catch (Exception e) {
-            throw new GettrApiException(GettrBaseApi.class.getName(), e.getMessage());
+            throw new GettrApiException(GettrNotificationApiImpl.class.getName(), e.getMessage());
         }
     }
 
@@ -96,7 +96,7 @@ public class GettrNotificationApiImpl extends GettrBaseApi implements GettrNotif
                 }
                 
                 cursor = notificationListResponse.getCursor();
-                log.info("getFollowers. Recuperados: " + notifications.size() + ". Cursor: " + cursor);
+                log.debug("getFollowers. Recuperados: " + notifications.size() + ". Cursor: " + cursor);
                 if (notificationListResponse.getNotifications().isEmpty()) {
                     continuar = false;
                 } else {
@@ -122,9 +122,9 @@ public class GettrNotificationApiImpl extends GettrBaseApi implements GettrNotif
             }
             
             List<GettrNotification> filtredNotifications = notifications.stream()
-                    .filter(n -> n.getCdate() >= Long.parseLong(posicionInicial))
+                    .filter(n -> n.getCdate() > Long.parseLong(posicionInicial))
                     .collect(Collectors.toList());
-            log.info("filtredNotificationsList size: " + filtredNotifications.size());
+            log.debug("filtredNotificationsList size: " + filtredNotifications.size());
             return new GettrNotificationListResponse(nuevaPosicionInicial, null, filtredNotifications);
         } catch (Exception e) {
             throw e;
