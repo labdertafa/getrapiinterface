@@ -5,7 +5,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import com.laboratorio.clientapilibrary.model.ApiMethodType;
 import com.laboratorio.clientapilibrary.model.ApiRequest;
+import com.laboratorio.clientapilibrary.model.ApiResponse;
 import com.laboratorio.getrapiinterface.GettrNotificationApi;
 import com.laboratorio.getrapiinterface.exception.GettrApiException;
 import com.laboratorio.getrapiinterface.modelo.GettrCredential;
@@ -18,9 +20,9 @@ import java.util.stream.Collectors;
 /**
  *
  * @author Rafael
- * @version 1.0
+ * @version 1.1
  * @created 10/09/2024
- * @updated 23/09/2024
+ * @updated 05/10/2024
  */
 public class GettrNotificationApiImpl extends GettrBaseApi implements GettrNotificationApi {
     public GettrNotificationApiImpl(String accountId, String accessToken) {
@@ -38,7 +40,7 @@ public class GettrNotificationApiImpl extends GettrBaseApi implements GettrNotif
             GettrCredential credential = new GettrCredential(this.accountId, this.accessToken);
             String credentialStr = gson.toJson(credential);
             
-            ApiRequest request = new ApiRequest(uri, okStatus);
+            ApiRequest request = new ApiRequest(uri, okStatus, ApiMethodType.GET);
             request.addApiPathParam("max", "20");
             if (posicionInicial != null) {
                 request.addApiPathParam("tagUp", posicionInicial);
@@ -47,9 +49,9 @@ public class GettrNotificationApiImpl extends GettrBaseApi implements GettrNotif
             request.addApiHeader("Content-Type", "application/json");
             request.addApiHeader("X-app-auth", credentialStr);
             
-            String jsonStr = this.client.executeGetRequest(request);
+            ApiResponse response = this.client.executeApiRequest(request);
             
-            JsonObject jsonObject = JsonParser.parseString(jsonStr).getAsJsonObject();
+            JsonObject jsonObject = JsonParser.parseString(response.getResponseStr()).getAsJsonObject();
             JsonObject jsonObjectResult = jsonObject.get("result").getAsJsonObject();
             String cursor = jsonObjectResult.get("next").getAsString();
             
@@ -96,7 +98,7 @@ public class GettrNotificationApiImpl extends GettrBaseApi implements GettrNotif
                 }
                 
                 cursor = notificationListResponse.getCursor();
-                log.debug("getFollowers. Recuperados: " + notifications.size() + ". Cursor: " + cursor);
+                log.debug("getAllNotifications. Recuperados: " + notifications.size() + ". Cursor: " + cursor);
                 if (notificationListResponse.getNotifications().isEmpty()) {
                     continuar = false;
                 } else {

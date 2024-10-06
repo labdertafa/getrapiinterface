@@ -1,25 +1,29 @@
 package com.laboratorio.getrapiinterface.impl;
 
 import com.google.gson.JsonSyntaxException;
+import com.laboratorio.clientapilibrary.model.ApiMethodType;
 import com.laboratorio.clientapilibrary.model.ApiRequest;
+import com.laboratorio.clientapilibrary.model.ApiResponse;
 import com.laboratorio.clientapilibrary.utils.ImageMetadata;
 import com.laboratorio.clientapilibrary.utils.PostUtils;
 import com.laboratorio.getrapiinterface.GettrStatusApi;
 import com.laboratorio.getrapiinterface.exception.GettrApiException;
 import com.laboratorio.getrapiinterface.modelo.GettrCredential;
 import com.laboratorio.getrapiinterface.modelo.request.GettrPostRequest;
+import com.laboratorio.getrapiinterface.modelo.response.GettrDeletePostResponse;
 import com.laboratorio.getrapiinterface.modelo.response.GettrPostResponse;
 import com.laboratorio.getrapiinterface.modelo.response.GettrUploadChannel;
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import javax.ws.rs.core.Response;
+import java.util.List;
 
 /**
  *
  * @author Rafael
- * @version 1.0
+ * @version 1.1
  * @created 07/09/2024
- * @updated 09/09/2024
+ * @updated 06/10/2024
  */
 public class GettrStatusApiImpl extends GettrBaseApi implements GettrStatusApi {
     public GettrStatusApiImpl(String accountId, String accessToken) {
@@ -39,13 +43,13 @@ public class GettrStatusApiImpl extends GettrBaseApi implements GettrStatusApi {
             GettrCredential credential = new GettrCredential(this.accountId, this.accessToken);
             String credentialStr = gson.toJson(credential);
             
-            ApiRequest request = new ApiRequest(uri, okStatus);
+            ApiRequest request = new ApiRequest(uri, okStatus, ApiMethodType.POST);
             request.addApiHeader("Content-Type", "application/json");
             request.addApiHeader("X-app-auth", credentialStr);
             request.addJsonFormData("content", jsonPost);
             
-            String jsonStr = this.client.executePostRequest(request);
-            return this.gson.fromJson(jsonStr, GettrPostResponse.class);
+            ApiResponse response = this.client.executeApiRequest(request);
+            return this.gson.fromJson(response.getResponseStr(), GettrPostResponse.class);
         } catch (JsonSyntaxException e) {
             logException(e);
             throw e;
@@ -71,13 +75,13 @@ public class GettrStatusApiImpl extends GettrBaseApi implements GettrStatusApi {
             GettrCredential credential = new GettrCredential(this.accountId, this.accessToken);
             String credentialStr = gson.toJson(credential);
             
-            ApiRequest request = new ApiRequest(uri, okStatus);
+            ApiRequest request = new ApiRequest(uri, okStatus, ApiMethodType.POST);
             request.addApiHeader("Content-Type", "application/json");
             request.addApiHeader("X-app-auth", credentialStr);
             request.addJsonFormData("content", jsonPost);
             
-            String jsonStr = this.client.executePostRequest(request);
-            return this.gson.fromJson(jsonStr, GettrPostResponse.class);
+            ApiResponse response = this.client.executeApiRequest(request);
+            return this.gson.fromJson(response.getResponseStr(), GettrPostResponse.class);
         } catch (JsonSyntaxException e) {
             logException(e);
             throw e;
@@ -112,42 +116,77 @@ public class GettrStatusApiImpl extends GettrBaseApi implements GettrStatusApi {
         try {
             // Solicitar un canal para subir la imagen
             String uri = endpoint;
-            ApiRequest request1 = new ApiRequest(uri, okStatus1);
+            ApiRequest request1 = new ApiRequest(uri, okStatus1, ApiMethodType.GET);
             request1.addApiHeader("Authorization", this.accessToken);
             request1.addApiHeader("filename", this.getFileName(filePath));
             request1.addApiHeader("userid", this.accountId);
             
-            String jsonStr = this.client.executeGetRequest(request1);
-            GettrUploadChannel uploadChannel = this.gson.fromJson(jsonStr, GettrUploadChannel.class);
+            ApiResponse response1 = this.client.executeApiRequest(request1);
+            GettrUploadChannel uploadChannel = this.gson.fromJson(response1.getResponseStr(), GettrUploadChannel.class);
             
             log.debug("Tengo el canal para subir la imagen: " + uploadChannel.getGcs().getUrl());
             
             // Se crea el identificador de la imagen a subir
-            ApiRequest request2 = new ApiRequest(uploadChannel.getGcs().getUrl(), okStatus2);
+            ApiRequest request2 = new ApiRequest(uploadChannel.getGcs().getUrl(), okStatus2, ApiMethodType.POST, "");
             request2.addApiHeader("Content-Type", mimeType);
             request2.addApiHeader("X-Goog-Resumable", "start");
-            // Response response = this.client.getResponsePostRequest(request2);
-            Response response = this.client.getResponsePostRequest(request2);
-            String imageId = response.getHeaderString("X-GUploader-UploadID");
-            response.close();
+            
+            ApiResponse response2 = this.client.executeApiRequest(request2);
+            
+            String imageId = null;
+            List<String> headerList = response2.getHttpHeaders().get("X-GUploader-UploadID");
+            if ((headerList != null) && (!headerList.isEmpty())) {
+                imageId = headerList.get(0);
+            }
+
             if (imageId == null) {
-                throw new Exception("Ha ocurrido un subiendo la imagen " + filePath);
+                throw new GettrApiException(GettrAccountApiImpl.class.getName(), "Ha ocurrido un subiendo la imagen " + filePath);
             }
             
             log.debug("He obtenido el ID de la imagen: " + imageId);
             
             // Se sube la imagen
-            ApiRequest request3 = new ApiRequest(uploadChannel.getGcs().getUrl(), okStatus3);
-            request3.setBinaryFile(filePath);
+            File file = new File(filePath);
+            ApiRequest request3 = new ApiRequest(uploadChannel.getGcs().getUrl(), okStatus3, ApiMethodType.PUT, file);
             request3.addApiPathParam("upload_id", imageId);
+            request3.addApiHeader("Content-Type", mimeType);
             String md5Str = PostUtils.calculateMD5Base64(filePath);
             request3.addApiHeader("content-md5", md5Str);
-            this.client.getResponsePutRequest(request3);
+            
+            this.client.executeApiRequest(request3);
             
             String rutaImagen = extraerRutaImagen(uploadChannel.getGcs().getUrl());
             log.debug("He subido la imagen correctamente: " + rutaImagen);
             
             return rutaImagen;
+        } catch (GettrApiException e) {
+            throw e;
+        } catch (JsonSyntaxException e) {
+            logException(e);
+            throw e;
+        } catch (Exception e) {
+            throw new GettrApiException(GettrAccountApiImpl.class.getName(), e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean deleteStatus(String id) {
+        String endpoint = this.apiConfig.getProperty("deleteStatus_endpoint");
+        int okStatus = Integer.parseInt(this.apiConfig.getProperty("deleteStatus_ok_status"));    
+        
+        try {
+            String uri = endpoint + "/" + id;
+            GettrCredential credential = new GettrCredential(this.accountId, this.accessToken);
+            String credentialStr = gson.toJson(credential);
+            
+            ApiRequest request = new ApiRequest(uri, okStatus, ApiMethodType.DELETE);
+            request.addApiHeader("Content-Type", "application/json");
+            request.addApiHeader("X-app-auth", credentialStr);
+            
+            ApiResponse response = this.client.executeApiRequest(request);
+            GettrDeletePostResponse postResponse = this.gson.fromJson(response.getResponseStr(), GettrDeletePostResponse.class);
+            
+            return postResponse.isResult();
         } catch (JsonSyntaxException e) {
             logException(e);
             throw e;

@@ -5,8 +5,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.laboratorio.clientapilibrary.ApiClient;
-import com.laboratorio.clientapilibrary.impl.ApiClientImpl;
+import com.laboratorio.clientapilibrary.model.ApiMethodType;
 import com.laboratorio.clientapilibrary.model.ApiRequest;
+import com.laboratorio.clientapilibrary.model.ApiResponse;
 import com.laboratorio.getrapiinterface.exception.GettrApiException;
 import com.laboratorio.getrapiinterface.modelo.GettrAccount;
 import com.laboratorio.getrapiinterface.modelo.GettrAccountListIndex;
@@ -20,9 +21,9 @@ import org.apache.logging.log4j.Logger;
 /**
  *
  * @author Rafael
- * @version 1.0
+ * @version 1.1
  * @created 05/09/2024
- * @updated 09/09/2024
+ * @updated 05/10/2024
  */
 public class GettrBaseApi {
     protected static final Logger log = LogManager.getLogger(GettrBaseApi.class);
@@ -33,7 +34,7 @@ public class GettrBaseApi {
     protected final Gson gson;
 
     public GettrBaseApi(String accountId, String accessToken) {
-        this.client = new ApiClientImpl();
+        this.client = new ApiClient();
         this.accountId = accountId;
         this.accessToken = accessToken;
         this.apiConfig = GettrApiConfig.getInstance();
@@ -50,15 +51,15 @@ public class GettrBaseApi {
     // Función que devuelve una página de seguidores o seguidos de una cuenta
     public GettrAccountListResponse getAccountPage(String uri, int okStatus, String posicionInicial) {
         try {
-            ApiRequest request = new ApiRequest(uri, okStatus);
+            ApiRequest request = new ApiRequest(uri, okStatus, ApiMethodType.GET);
             if (posicionInicial != null) {
                 request.addApiPathParam("cursor", posicionInicial);
             }
             request.addApiHeader("Content-Type", "application/json");
             
-            String jsonStr = this.client.executeGetRequest(request);
+            ApiResponse response = this.client.executeApiRequest(request);
             
-            JsonObject jsonObject = JsonParser.parseString(jsonStr).getAsJsonObject();
+            JsonObject jsonObject = JsonParser.parseString(response.getResponseStr()).getAsJsonObject();
             JsonObject jsonObjectResult = jsonObject.get("result").getAsJsonObject();
             
             GettrAccountListIndex listIndex = gson.fromJson(jsonObjectResult.get("data"), GettrAccountListIndex.class);

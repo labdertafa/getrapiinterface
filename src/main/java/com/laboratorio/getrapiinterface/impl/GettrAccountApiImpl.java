@@ -1,7 +1,9 @@
 package com.laboratorio.getrapiinterface.impl;
 
 import com.google.gson.JsonSyntaxException;
+import com.laboratorio.clientapilibrary.model.ApiMethodType;
 import com.laboratorio.clientapilibrary.model.ApiRequest;
+import com.laboratorio.clientapilibrary.model.ApiResponse;
 import com.laboratorio.getrapiinterface.GettrAccountApi;
 import com.laboratorio.getrapiinterface.exception.GettrApiException;
 import com.laboratorio.getrapiinterface.modelo.GettrAccount;
@@ -15,9 +17,9 @@ import com.laboratorio.getrapiinterface.modelo.response.GettrRelationshipRespons
 /**
  *
  * @author Rafael
- * @version 1.0
+ * @version 1.1
  * @created 05/09/2024
- * @updated 09/09/2024
+ * @updated 05/10/2024
  */
 public class GettrAccountApiImpl extends GettrBaseApi implements GettrAccountApi {
     public GettrAccountApiImpl(String accountId, String accessToken) {
@@ -31,12 +33,12 @@ public class GettrAccountApiImpl extends GettrBaseApi implements GettrAccountApi
         
         try {
             String url = endpoint + "/" + username;
-            ApiRequest request = new ApiRequest(url, okStatus);
+            ApiRequest request = new ApiRequest(url, okStatus, ApiMethodType.GET);
             request.addApiHeader("Content-Type", "application/json");
             
-            String jsonStr = this.client.executeGetRequest(request);
+            ApiResponse response = this.client.executeApiRequest(request);
             
-            GettrAccountResponse accountResponse = this.gson.fromJson(jsonStr, GettrAccountResponse.class);
+            GettrAccountResponse accountResponse = this.gson.fromJson(response.getResponseStr(), GettrAccountResponse.class);
             return accountResponse.getResult().getData();
         } catch (JsonSyntaxException e) {
             logException(e);
@@ -97,14 +99,17 @@ public class GettrAccountApiImpl extends GettrBaseApi implements GettrAccountApi
             GettrCredential credential = new GettrCredential(this.accountId, this.accessToken);
             String credentialStr = gson.toJson(credential);
             
-            ApiRequest request = new ApiRequest(uri, okStatus);
+            ApiRequest request = new ApiRequest(uri, okStatus, ApiMethodType.POST);
             request.addApiHeader("Content-Type", "application/json");
             request.addApiHeader("X-app-auth", credentialStr);
             
-            String jsonStr = this.client.executePostRequest(request);
-            GettrFollowResponse response = this.gson.fromJson(jsonStr, GettrFollowResponse.class);
+            ApiResponse response = this.client.executeApiRequest(request);
+            GettrFollowResponse followResponse = this.gson.fromJson(response.getResponseStr(), GettrFollowResponse.class);
             
-            return response.getRc().equals("OK");
+            return followResponse.getRc().equals("OK");
+        } catch (JsonSyntaxException e) {
+            logException(e);
+            throw e;
         } catch (Exception e) {
             throw new GettrApiException(GettrAccountApiImpl.class.getName(), e.getMessage());
         }
@@ -121,14 +126,17 @@ public class GettrAccountApiImpl extends GettrBaseApi implements GettrAccountApi
             GettrCredential credential = new GettrCredential(this.accountId, this.accessToken);
             String credentialStr = gson.toJson(credential);
             
-            ApiRequest request = new ApiRequest(uri, okStatus);
+            ApiRequest request = new ApiRequest(uri, okStatus, ApiMethodType.POST);
             request.addApiHeader("Content-Type", "application/json");
             request.addApiHeader("X-app-auth", credentialStr);
             
-            String jsonStr = this.client.executePostRequest(request);
-            GettrFollowResponse response = this.gson.fromJson(jsonStr, GettrFollowResponse.class);
+            ApiResponse response = this.client.executeApiRequest(request);
+            GettrFollowResponse followResponse = this.gson.fromJson(response.getResponseStr(), GettrFollowResponse.class);
             
-            return response.getRc().equals("OK");
+            return followResponse.getRc().equals("OK");
+        } catch (JsonSyntaxException e) {
+            logException(e);
+            throw e;
         } catch (Exception e) {
             throw new GettrApiException(GettrAccountApiImpl.class.getName(), e.getMessage());
         }
@@ -145,37 +153,42 @@ public class GettrAccountApiImpl extends GettrBaseApi implements GettrAccountApi
             GettrCredential credential = new GettrCredential(this.accountId, this.accessToken);
             String credentialStr = gson.toJson(credential);
             
-            ApiRequest request1 = new ApiRequest(uri1, okStatus);
+            ApiRequest request1 = new ApiRequest(uri1, okStatus, ApiMethodType.GET);
             request1.addApiHeader("Content-Type", "application/json");
             request1.addApiHeader("X-app-auth", credentialStr);
             
-            String jsonStr1 = this.client.executeGetRequest(request1);
-            GettrRelationshipResponse response1 = this.gson.fromJson(jsonStr1, GettrRelationshipResponse.class);
-            if (!response1.getRc().equals("OK")) {
-                throw new Exception("Ha ocurrido un error verificando la relación con " + userId);
+            ApiResponse response1 = this.client.executeApiRequest(request1);
+            GettrRelationshipResponse relationshipResponse1 = this.gson.fromJson(response1.getResponseStr(), GettrRelationshipResponse.class);
+            if (!relationshipResponse1.getRc().equals("OK")) {
+                throw new GettrApiException(GettrAccountApiImpl.class.getName(), "Ha ocurrido un error verificando la relación con " + userId);
             }
             boolean following = false;
-            if (response1.getResult().equalsIgnoreCase("y")) {
+            if (relationshipResponse1.getResult().equalsIgnoreCase("y")) {
                 following = true;
             }
             
             String uri2 = endpoint + "/" + userId + "/" + complementoUrl + "/" + this.accountId;
             
-            ApiRequest request2 = new ApiRequest(uri2, okStatus);
+            ApiRequest request2 = new ApiRequest(uri2, okStatus, ApiMethodType.GET);
             request2.addApiHeader("Content-Type", "application/json");
             request2.addApiHeader("X-app-auth", credentialStr);
             
-            String jsonStr2 = this.client.executeGetRequest(request2);
-            GettrRelationshipResponse response2 = this.gson.fromJson(jsonStr2, GettrRelationshipResponse.class);
-            if (!response2.getRc().equals("OK")) {
-                throw new Exception("Ha ocurrido un error verificando la relación con " + userId);
+            ApiResponse response2 = this.client.executeApiRequest(request2);
+            GettrRelationshipResponse relationshipResponse2 = this.gson.fromJson(response2.getResponseStr(), GettrRelationshipResponse.class);
+            if (!relationshipResponse2.getRc().equals("OK")) {
+                throw new GettrApiException(GettrAccountApiImpl.class.getName(), "Ha ocurrido un error verificando la relación con " + userId);
             }
             boolean followedBy = false;
-            if (response2.getResult().equalsIgnoreCase("y")) {
+            if (relationshipResponse2.getResult().equalsIgnoreCase("y")) {
                 followedBy = true;
             }
             
             return new GettrRelationship(userId, following, followedBy);
+        } catch (GettrApiException e) {
+            throw e;
+        } catch (JsonSyntaxException e) {
+            logException(e);
+            throw e;
         } catch (Exception e) {
             throw new GettrApiException(GettrAccountApiImpl.class.getName(), e.getMessage());
         }
