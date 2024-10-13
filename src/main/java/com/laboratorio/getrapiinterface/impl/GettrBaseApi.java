@@ -23,7 +23,7 @@ import org.apache.logging.log4j.Logger;
  * @author Rafael
  * @version 1.1
  * @created 05/09/2024
- * @updated 05/10/2024
+ * @updated 13/10/2024
  */
 public class GettrBaseApi {
     protected static final Logger log = LogManager.getLogger(GettrBaseApi.class);
@@ -62,7 +62,7 @@ public class GettrBaseApi {
             JsonObject jsonObject = JsonParser.parseString(response.getResponseStr()).getAsJsonObject();
             JsonObject jsonObjectResult = jsonObject.get("result").getAsJsonObject();
             
-            GettrAccountListIndex listIndex = gson.fromJson(jsonObjectResult.get("data"), GettrAccountListIndex.class);
+            GettrAccountListIndex listIndex = this.gson.fromJson(jsonObjectResult.get("data"), GettrAccountListIndex.class);
             log.debug("Número de cuentas obtenidas en la respuesta: " + listIndex.getList().size());
             
             JsonObject jsonObjectDetail = jsonObjectResult.get("aux").getAsJsonObject();
@@ -73,7 +73,7 @@ public class GettrBaseApi {
             
             List<GettrAccount> accounts = new ArrayList<>();
             for (String username : listIndex.getList()) {
-                GettrAccount account = gson.fromJson(jsonObjectUserInfo.get(username), GettrAccount.class);
+                GettrAccount account = this.gson.fromJson(jsonObjectUserInfo.get(username), GettrAccount.class);
                 accounts.add(account);
                 log.debug("Valores obtenidos para el usuario: " + account.toString());
             }

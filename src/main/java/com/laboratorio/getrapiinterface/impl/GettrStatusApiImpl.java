@@ -1,5 +1,7 @@
 package com.laboratorio.getrapiinterface.impl;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.laboratorio.clientapilibrary.model.ApiMethodType;
 import com.laboratorio.clientapilibrary.model.ApiRequest;
@@ -9,21 +11,26 @@ import com.laboratorio.clientapilibrary.utils.PostUtils;
 import com.laboratorio.getrapiinterface.GettrStatusApi;
 import com.laboratorio.getrapiinterface.exception.GettrApiException;
 import com.laboratorio.getrapiinterface.modelo.GettrCredential;
+import com.laboratorio.getrapiinterface.modelo.GettrStatus;
+import com.laboratorio.getrapiinterface.modelo.GettrStatusHeader;
+import com.laboratorio.getrapiinterface.modelo.GettrStatusListIndex;
 import com.laboratorio.getrapiinterface.modelo.request.GettrPostRequest;
 import com.laboratorio.getrapiinterface.modelo.response.GettrDeletePostResponse;
 import com.laboratorio.getrapiinterface.modelo.response.GettrPostResponse;
+import com.laboratorio.getrapiinterface.modelo.response.GettrStatusListResponse;
 import com.laboratorio.getrapiinterface.modelo.response.GettrUploadChannel;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  *
  * @author Rafael
- * @version 1.1
+ * @version 1.2
  * @created 07/09/2024
- * @updated 06/10/2024
+ * @updated 13/10/2024
  */
 public class GettrStatusApiImpl extends GettrBaseApi implements GettrStatusApi {
     public GettrStatusApiImpl(String accountId, String accessToken) {
@@ -192,6 +199,88 @@ public class GettrStatusApiImpl extends GettrBaseApi implements GettrStatusApi {
             throw e;
         } catch (Exception e) {
             throw new GettrApiException(GettrAccountApiImpl.class.getName(), e.getMessage());
+        }
+    }
+    
+    private GettrStatusListResponse getTimeLinePage(String uri, int okStatus, String posicionInicial) {
+        try {
+            GettrCredential credential = new GettrCredential(this.accountId, this.accessToken);
+            String credentialStr = gson.toJson(credential);
+            
+            ApiRequest request = new ApiRequest(uri, okStatus, ApiMethodType.GET);
+            request.addApiPathParam("max", "20");
+            request.addApiPathParam("dir", "fwd");
+            request.addApiPathParam("incl", "posts|stats|userinfo|shared|liked|pvotes");
+            if (posicionInicial != null) {
+                request.addApiPathParam("cursor", posicionInicial);
+            }
+            request.addApiHeader("Content-Type", "application/json");
+            request.addApiHeader("X-app-auth", credentialStr);
+            
+            ApiResponse response = this.client.executeApiRequest(request);
+            
+            JsonObject jsonObject = JsonParser.parseString(response.getResponseStr()).getAsJsonObject();
+            JsonObject jsonObjectResult = jsonObject.get("result").getAsJsonObject();
+            
+            GettrStatusListIndex listIndex = gson.fromJson(jsonObjectResult.get("data"), GettrStatusListIndex.class);
+            log.debug("Número de cuentas obtenidas en la respuesta: " + listIndex.getList().size());
+            
+            JsonObject jsonObjectDetail = jsonObjectResult.get("aux").getAsJsonObject();
+            String cursor = jsonObjectDetail.get("cursor").getAsString();
+            log.info("Valor obtenido para el cursor: " + cursor);
+            
+            JsonObject jsonObjectStatusInfo = jsonObjectDetail.get("post").getAsJsonObject();
+            
+            List<GettrStatus> statuses = new ArrayList<>();
+            for (GettrStatusHeader statusHeader : listIndex.getList()) {
+                GettrStatus status = gson.fromJson(jsonObjectStatusInfo.get(statusHeader.getActivity().get_id()), GettrStatus.class);
+                statuses.add(status);
+            }
+            
+            return new GettrStatusListResponse(statuses, cursor);
+        } catch (JsonSyntaxException e) {
+            logException(e);
+            throw e;
+        } catch (Exception e) {
+            throw new GettrApiException(GettrBaseApi.class.getName(), e.getMessage());
+        }
+    }
+
+    @Override
+    public List<GettrStatus> getGlobalTimeline(int quantity) {
+        String endpoint = this.apiConfig.getProperty("getGlobalTimeLine_endpoint");
+        int okStatus = Integer.parseInt(this.apiConfig.getProperty("getGlobalTimeLine_ok_status"));
+        
+        List<GettrStatus> statuses = null;
+        boolean continuar = true;
+        String cursor = null;
+        
+        try {
+            String uri = endpoint;
+            
+            do {
+                GettrStatusListResponse statusListResponse = this.getTimeLinePage(uri, okStatus, cursor);
+                log.info("Elementos recuperados total: " + statusListResponse.getAccounts().size());
+                if (statuses == null) {
+                    statuses = statusListResponse.getAccounts();
+                } else {
+                    statuses.addAll(statusListResponse.getAccounts());
+                }
+                
+                cursor = statusListResponse.getCursor();
+                log.info("getGlobalTimeline. Recuperados: " + statuses.size() + ". Cursor: " + cursor);
+                if (statusListResponse.getAccounts().isEmpty()) {
+                    continuar = false;
+                } else {
+                    if ((cursor == null) || (statuses.size() >= quantity)) {
+                        continuar = false;
+                    }
+                }
+            } while (continuar);
+            
+            return statuses.subList(0, Math.min(quantity, statuses.size()));
+        } catch (Exception e) {
+            throw e;
         }
     }
 }

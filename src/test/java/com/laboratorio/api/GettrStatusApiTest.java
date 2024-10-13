@@ -2,8 +2,12 @@ package com.laboratorio.api;
 
 import com.laboratorio.getrapiinterface.GettrStatusApi;
 import com.laboratorio.getrapiinterface.impl.GettrStatusApiImpl;
+import com.laboratorio.getrapiinterface.modelo.GettrStatus;
 import com.laboratorio.getrapiinterface.modelo.response.GettrPostResponse;
 import com.laboratorio.getrapiinterface.utiles.GettrApiConfig;
+import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,13 +18,14 @@ import org.junit.jupiter.api.TestMethodOrder;
 /**
  *
  * @author Rafael
- * @version 1.0
+ * @version 1.1
  * @created 08/09/2024
- * @updated 06/10/2024
+ * @updated 13/10/2024
  */
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class GettrStatusApiTest {
+    protected static final Logger log = LogManager.getLogger(GettrStatusApiTest.class);
     private static GettrStatusApi statusApi;
     private static String accountId;
     private static String postId;
@@ -77,5 +82,19 @@ public class GettrStatusApiTest {
         boolean result = statusApi.deleteStatus(postId);
         
         assertTrue(result);
+    }
+    
+    @Test
+    public void getGlobalTimeline() {
+        int quantity = 50;
+        
+        List<GettrStatus> statuses = statusApi.getGlobalTimeline(quantity);
+        int i = 0;
+        for (GettrStatus status : statuses) {
+            i++;
+            log.info(i + "-) Status: " + status.toString());
+        }
+        
+        assertEquals(quantity, statuses.size());
     }
 }
