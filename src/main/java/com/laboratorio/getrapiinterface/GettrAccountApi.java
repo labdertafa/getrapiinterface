@@ -7,11 +7,12 @@ import com.laboratorio.getrapiinterface.modelo.response.GettrAccountListResponse
 /**
  *
  * @author Rafael
- * @version 1.0
+ * @version 1.1
  * @created 05/09/2024
- * @updated 09/09/2024
+ * @updated 13/10/2024
  */
 public interface GettrAccountApi {
+    GettrAccount getAccountById(String userId);
     GettrAccount getAccountByUsername(String username);
     
     GettrAccountListResponse getFollowers(String userId);

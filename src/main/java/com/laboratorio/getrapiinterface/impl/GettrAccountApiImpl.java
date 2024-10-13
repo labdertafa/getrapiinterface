@@ -19,11 +19,16 @@ import com.laboratorio.getrapiinterface.modelo.response.GettrRelationshipRespons
  * @author Rafael
  * @version 1.1
  * @created 05/09/2024
- * @updated 05/10/2024
+ * @updated 13/10/2024
  */
 public class GettrAccountApiImpl extends GettrBaseApi implements GettrAccountApi {
     public GettrAccountApiImpl(String accountId, String accessToken) {
         super(accountId, accessToken);
+    }
+    
+    @Override
+    public GettrAccount getAccountById(String userId) {
+        return this.getAccountByUsername(userId);
     }
 
     @Override
