@@ -38,7 +38,7 @@ public class GettrStatusApiImpl extends GettrBaseApi implements GettrStatusApi {
     }
     
     @Override
-    public GettrPostResponse postStatus(String text) {
+    public GettrStatus postStatus(String text) {
         String endpoint = this.apiConfig.getProperty("postStatus_endpoint");
         int okStatus = Integer.parseInt(this.apiConfig.getProperty("postStatus_ok_status"));    
         
@@ -56,7 +56,9 @@ public class GettrStatusApiImpl extends GettrBaseApi implements GettrStatusApi {
             request.addJsonFormData("content", jsonPost);
             
             ApiResponse response = this.client.executeApiRequest(request);
-            return this.gson.fromJson(response.getResponseStr(), GettrPostResponse.class);
+
+            GettrPostResponse postResponse = this.gson.fromJson(response.getResponseStr(), GettrPostResponse.class);
+            return postResponse.getResult().getData();
         } catch (JsonSyntaxException e) {
             logException(e);
             throw e;
@@ -66,7 +68,7 @@ public class GettrStatusApiImpl extends GettrBaseApi implements GettrStatusApi {
     }
 
     @Override
-    public GettrPostResponse postStatus(String text, String filePath) {
+    public GettrStatus postStatus(String text, String filePath) {
         String endpoint = this.apiConfig.getProperty("postStatus_endpoint");
         int okStatus = Integer.parseInt(this.apiConfig.getProperty("postStatus_ok_status"));    
         
@@ -88,7 +90,8 @@ public class GettrStatusApiImpl extends GettrBaseApi implements GettrStatusApi {
             request.addJsonFormData("content", jsonPost);
             
             ApiResponse response = this.client.executeApiRequest(request);
-            return this.gson.fromJson(response.getResponseStr(), GettrPostResponse.class);
+            GettrPostResponse postResponse = this.gson.fromJson(response.getResponseStr(), GettrPostResponse.class);
+            return postResponse.getResult().getData();
         } catch (JsonSyntaxException e) {
             logException(e);
             throw e;

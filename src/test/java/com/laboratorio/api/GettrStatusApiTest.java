@@ -3,7 +3,6 @@ package com.laboratorio.api;
 import com.laboratorio.getrapiinterface.GettrStatusApi;
 import com.laboratorio.getrapiinterface.impl.GettrStatusApiImpl;
 import com.laboratorio.getrapiinterface.modelo.GettrStatus;
-import com.laboratorio.getrapiinterface.modelo.response.GettrPostResponse;
 import com.laboratorio.getrapiinterface.utiles.GettrApiConfig;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
@@ -20,7 +19,7 @@ import org.junit.jupiter.api.TestMethodOrder;
  * @author Rafael
  * @version 1.1
  * @created 08/09/2024
- * @updated 13/10/2024
+ * @updated 17/10/2024
  */
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -42,11 +41,10 @@ public class GettrStatusApiTest {
     public void postTextStatus() {
         String texto = "Creando una publicación de prueba con una URL desde el navegador a ver que tal va:\n\nhttps://laboratoriorafa.mooo.com:8443/WebLaboratorio/\n\n#siguemeytesigo #Followback\n";
         
-        GettrPostResponse response = statusApi.postStatus(texto);
-        postId = response.getResult().getData().get_id();
+        GettrStatus status = statusApi.postStatus(texto);
+        postId = status.get_id();
         
-        assertTrue(response.getRc().equals("OK"));
-        assertEquals(accountId, response.getResult().getData().getUid());
+        assertEquals(accountId, status.getUid());
     }
     
     @Test @Order(2)
@@ -70,11 +68,10 @@ public class GettrStatusApiTest {
         String texto = "Creando una publicación de prueba con una URL desde el navegador a ver que tal va:\n\nhttps://laboratoriorafa.mooo.com:8443/WebLaboratorio/\n\n#siguemeytesigo #Followback\n";
         String filePath = "C:\\Users\\rafa\\Pictures\\Formula_1\\Circuit_Aintree_1955.png";
         
-        GettrPostResponse response = statusApi.postStatus(texto, filePath);
-        postId = response.getResult().getData().get_id();
+        GettrStatus status = statusApi.postStatus(texto, filePath);
+        postId = status.get_id();
         
-        assertTrue(response.getRc().equals("OK"));
-        assertEquals(accountId, response.getResult().getData().getUid());
+        assertEquals(accountId, status.getUid());
     }
     
     @Test @Order(4)
