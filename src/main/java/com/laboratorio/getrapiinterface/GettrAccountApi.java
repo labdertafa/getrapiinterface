@@ -3,13 +3,14 @@ package com.laboratorio.getrapiinterface;
 import com.laboratorio.getrapiinterface.modelo.GettrAccount;
 import com.laboratorio.getrapiinterface.modelo.GettrRelationship;
 import com.laboratorio.getrapiinterface.modelo.response.GettrAccountListResponse;
+import java.util.List;
 
 /**
  *
  * @author Rafael
- * @version 1.1
+ * @version 1.2
  * @created 05/09/2024
- * @updated 13/10/2024
+ * @updated 22/10/2024
  */
 public interface GettrAccountApi {
     GettrAccount getAccountById(String userId);
@@ -19,9 +20,13 @@ public interface GettrAccountApi {
     GettrAccountListResponse getFollowers(String userId, int quantity);
     GettrAccountListResponse getFollowers(String userId, int quantity, String posicionInicial);
     
+    List<String> getFollowersIds(String userId);
+    
     GettrAccountListResponse getFollowings(String userId);
     GettrAccountListResponse getFollowings(String userId, int quantity);
     GettrAccountListResponse getFollowings(String userId, int quantity, String posicionInicial);
+    
+    List<String> getFollowingsIds(String userId);
     
     // Seguir a un usuario
     boolean followAccount(String userId);

@@ -13,13 +13,15 @@ import com.laboratorio.getrapiinterface.modelo.response.GettrAccountListResponse
 import com.laboratorio.getrapiinterface.modelo.response.GettrAccountResponse;
 import com.laboratorio.getrapiinterface.modelo.response.GettrFollowResponse;
 import com.laboratorio.getrapiinterface.modelo.response.GettrRelationshipResponse;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
  * @author Rafael
- * @version 1.1
+ * @version 1.2
  * @created 05/09/2024
- * @updated 13/10/2024
+ * @updated 22/10/2024
  */
 public class GettrAccountApiImpl extends GettrBaseApi implements GettrAccountApi {
     public GettrAccountApiImpl(String accountId, String accessToken) {
@@ -72,6 +74,14 @@ public class GettrAccountApiImpl extends GettrBaseApi implements GettrAccountApi
         
         return this.getAccountList(uri, okStatus, quantity, posicionInicial);
     }
+    
+    @Override
+    public List<String> getFollowersIds(String userId) {
+        GettrAccountListResponse response = this.getFollowers(userId, 0, null);
+        return response.getAccounts().stream()
+                .map(account -> account.getOusername())
+                .collect(Collectors.toList());
+    }
 
     @Override
     public GettrAccountListResponse getFollowings(String userId) {
@@ -91,6 +101,14 @@ public class GettrAccountApiImpl extends GettrBaseApi implements GettrAccountApi
         String uri = endpoint + "/" + userId + "/" + complementoUrl;
         
         return this.getAccountList(uri, okStatus, quantity, posicionInicial);
+    }
+    
+    @Override
+    public List<String> getFollowingsIds(String userId) {
+        GettrAccountListResponse response = this.getFollowings(userId, 0, null);
+        return response.getAccounts().stream()
+                .map(account -> account.getOusername())
+                .collect(Collectors.toList());
     }
 
     @Override

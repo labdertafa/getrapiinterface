@@ -30,7 +30,7 @@ import java.util.List;
  * @author Rafael
  * @version 1.2
  * @created 07/09/2024
- * @updated 13/10/2024
+ * @updated 22/10/2024
  */
 public class GettrStatusApiImpl extends GettrBaseApi implements GettrStatusApi {
     public GettrStatusApiImpl(String accountId, String accessToken) {
@@ -230,7 +230,7 @@ public class GettrStatusApiImpl extends GettrBaseApi implements GettrStatusApi {
             
             JsonObject jsonObjectDetail = jsonObjectResult.get("aux").getAsJsonObject();
             String cursor = jsonObjectDetail.get("cursor").getAsString();
-            log.info("Valor obtenido para el cursor: " + cursor);
+            log.debug("Valor obtenido para el cursor: " + cursor);
             
             JsonObject jsonObjectStatusInfo = jsonObjectDetail.get("post").getAsJsonObject();
             
@@ -263,7 +263,7 @@ public class GettrStatusApiImpl extends GettrBaseApi implements GettrStatusApi {
             
             do {
                 GettrStatusListResponse statusListResponse = this.getTimeLinePage(uri, okStatus, cursor);
-                log.info("Elementos recuperados total: " + statusListResponse.getAccounts().size());
+                log.debug("Elementos recuperados total: " + statusListResponse.getAccounts().size());
                 if (statuses == null) {
                     statuses = statusListResponse.getAccounts();
                 } else {
@@ -271,7 +271,7 @@ public class GettrStatusApiImpl extends GettrBaseApi implements GettrStatusApi {
                 }
                 
                 cursor = statusListResponse.getCursor();
-                log.info("getGlobalTimeline. Recuperados: " + statuses.size() + ". Cursor: " + cursor);
+                log.debug("getGlobalTimeline. Recuperados: " + statuses.size() + ". Cursor: " + cursor);
                 if (statusListResponse.getAccounts().isEmpty()) {
                     continuar = false;
                 } else {
