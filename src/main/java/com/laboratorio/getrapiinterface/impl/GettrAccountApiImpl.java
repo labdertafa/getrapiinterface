@@ -79,7 +79,7 @@ public class GettrAccountApiImpl extends GettrBaseApi implements GettrAccountApi
     public List<String> getFollowersIds(String userId) {
         GettrAccountListResponse response = this.getFollowers(userId, 0, null);
         return response.getAccounts().stream()
-                .map(account -> account.getOusername())
+                .map(account -> account.get_id())
                 .collect(Collectors.toList());
     }
 
@@ -107,7 +107,7 @@ public class GettrAccountApiImpl extends GettrBaseApi implements GettrAccountApi
     public List<String> getFollowingsIds(String userId) {
         GettrAccountListResponse response = this.getFollowings(userId, 0, null);
         return response.getAccounts().stream()
-                .map(account -> account.getOusername())
+                .map(account -> account.get_id())
                 .collect(Collectors.toList());
     }
 
