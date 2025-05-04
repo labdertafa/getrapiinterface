@@ -8,11 +8,11 @@ import com.laboratorio.clientapilibrary.ApiClient;
 import com.laboratorio.clientapilibrary.model.ApiMethodType;
 import com.laboratorio.clientapilibrary.model.ApiRequest;
 import com.laboratorio.clientapilibrary.model.ApiResponse;
+import com.laboratorio.clientapilibrary.utils.ReaderConfig;
 import com.laboratorio.getrapiinterface.exception.GettrApiException;
 import com.laboratorio.getrapiinterface.modelo.GettrAccount;
 import com.laboratorio.getrapiinterface.modelo.GettrAccountListIndex;
 import com.laboratorio.getrapiinterface.modelo.response.GettrAccountListResponse;
-import com.laboratorio.getrapiinterface.utiles.GettrApiConfig;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
@@ -23,21 +23,21 @@ import org.apache.logging.log4j.Logger;
  * @author Rafael
  * @version 1.1
  * @created 05/09/2024
- * @updated 13/10/2024
+ * @updated 04/05/2025
  */
 public class GettrBaseApi {
     protected static final Logger log = LogManager.getLogger(GettrBaseApi.class);
     protected final ApiClient client;
     protected final String accountId;
     protected final String accessToken;
-    protected final GettrApiConfig apiConfig;
+    protected final ReaderConfig apiConfig;
     protected final Gson gson;
 
     public GettrBaseApi(String accountId, String accessToken) {
         this.client = new ApiClient();
         this.accountId = accountId;
         this.accessToken = accessToken;
-        this.apiConfig = GettrApiConfig.getInstance();
+        this.apiConfig = new ReaderConfig("config//gettr_api.properties");
         this.gson = new Gson();
     }
     

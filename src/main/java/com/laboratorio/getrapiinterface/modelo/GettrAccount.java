@@ -1,6 +1,6 @@
 package com.laboratorio.getrapiinterface.modelo;
 
-import com.laboratorio.getrapiinterface.utiles.GettrApiConfig;
+import com.laboratorio.clientapilibrary.utils.ReaderConfig;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +12,7 @@ import lombok.Setter;
  * @author Rafael
  * @version 1.0
  * @created 05/09/2024
- * @updated 09/09/2024
+ * @updated 04/05/2025
  */
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
@@ -38,7 +38,8 @@ public class GettrAccount {
     // private GettrPremium premium;
     
     public boolean isSeguidorPotencial() {
-        String accountId = GettrApiConfig.getInstance().getProperty("usuario_gettr");
+        ReaderConfig config = new ReaderConfig("config//gettr_api.properties");
+        String accountId = config.getProperty("usuario_gettr");
         if (this._id.equals(accountId)) {
             return false;
         }
@@ -51,7 +52,7 @@ public class GettrAccount {
     }
     
     public boolean isFuenteSeguidores() {
-        GettrApiConfig config = GettrApiConfig.getInstance();
+        ReaderConfig config = new ReaderConfig("config//gettr_api.properties");
         int umbral = Integer.parseInt(config.getProperty("umbral_fuente_seguidores"));
         return this.flg >= umbral;
     }

@@ -1,11 +1,11 @@
 package com.laboratorio.api;
 
+import com.laboratorio.clientapilibrary.utils.ReaderConfig;
 import com.laboratorio.getrapiinterface.GettrAccountApi;
 import com.laboratorio.getrapiinterface.exception.GettrApiException;
 import com.laboratorio.getrapiinterface.impl.GettrAccountApiImpl;
 import com.laboratorio.getrapiinterface.modelo.GettrAccount;
 import com.laboratorio.getrapiinterface.modelo.GettrRelationship;
-import com.laboratorio.getrapiinterface.utiles.GettrApiConfig;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,7 +19,7 @@ import org.junit.jupiter.api.TestMethodOrder;
  * @author Rafael
  * @version 1.0
  * @created 05/09/2024
- * @updated 07/09/2024
+ * @updated 04/05/2025
  */
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -28,7 +28,7 @@ public class GettrAccountApiTest {
     
     @BeforeEach
     public void initTest() {
-        GettrApiConfig config = GettrApiConfig.getInstance();
+        ReaderConfig config = new ReaderConfig("config//gettr_api.properties");
         String accessToken = config.getProperty("access_token");
         String accountId = config.getProperty("usuario_gettr");
         accountApi = new GettrAccountApiImpl(accountId, accessToken);

@@ -1,9 +1,9 @@
 package com.laboratorio.api;
 
+import com.laboratorio.clientapilibrary.utils.ReaderConfig;
 import com.laboratorio.getrapiinterface.GettrStatusApi;
 import com.laboratorio.getrapiinterface.impl.GettrStatusApiImpl;
 import com.laboratorio.getrapiinterface.modelo.GettrStatus;
-import com.laboratorio.getrapiinterface.utiles.GettrApiConfig;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,7 +19,7 @@ import org.junit.jupiter.api.TestMethodOrder;
  * @author Rafael
  * @version 1.1
  * @created 08/09/2024
- * @updated 17/10/2024
+ * @updated 04/05/2025
  */
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -31,7 +31,7 @@ public class GettrStatusApiTest {
     
     @BeforeEach
     public void initTest() {
-        GettrApiConfig config = GettrApiConfig.getInstance();
+        ReaderConfig config = new ReaderConfig("config//gettr_api.properties");
         String accessToken = config.getProperty("access_token");
         accountId = config.getProperty("usuario_gettr");
         statusApi = new GettrStatusApiImpl(accountId, accessToken);
