@@ -3,7 +3,6 @@ package com.laboratorio.getrapiinterface.impl;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 import com.laboratorio.clientapilibrary.ApiClient;
 import com.laboratorio.clientapilibrary.model.ApiMethodType;
 import com.laboratorio.clientapilibrary.model.ApiRequest;
@@ -23,7 +22,7 @@ import org.apache.logging.log4j.Logger;
  * @author Rafael
  * @version 1.1
  * @created 05/09/2024
- * @updated 04/05/2025
+ * @updated 06/06/2025
  */
 public class GettrBaseApi {
     protected static final Logger log = LogManager.getLogger(GettrBaseApi.class);
@@ -39,13 +38,6 @@ public class GettrBaseApi {
         this.accessToken = accessToken;
         this.apiConfig = new ReaderConfig("config//gettr_api.properties");
         this.gson = new Gson();
-    }
-    
-    protected void logException(Exception e) {
-        log.error("Error: " + e.getMessage());
-        if (e.getCause() != null) {
-            log.error("Causa: " + e.getCause().getMessage());
-        }
     }
     
     // Función que devuelve una página de seguidores o seguidos de una cuenta
@@ -79,11 +71,8 @@ public class GettrBaseApi {
             }
             
             return new GettrAccountListResponse(accounts, cursor);
-        } catch (JsonSyntaxException e) {
-            logException(e);
-            throw e;
         } catch (Exception e) {
-            throw new GettrApiException(GettrBaseApi.class.getName(), e.getMessage());
+            throw new GettrApiException("Error recuperando una página de usuarios Gettr: " + uri, e);
         }
     }
     

@@ -30,7 +30,7 @@ import java.util.List;
  * @author Rafael
  * @version 1.2
  * @created 07/09/2024
- * @updated 22/10/2024
+ * @updated 06/06/2025
  */
 public class GettrStatusApiImpl extends GettrBaseApi implements GettrStatusApi {
     public GettrStatusApiImpl(String accountId, String accessToken) {
@@ -56,14 +56,12 @@ public class GettrStatusApiImpl extends GettrBaseApi implements GettrStatusApi {
             request.addJsonFormData("content", jsonPost);
             
             ApiResponse response = this.client.executeApiRequest(request);
+            log.debug("Response postStatus: {}", response.getResponseStr());
 
             GettrPostResponse postResponse = this.gson.fromJson(response.getResponseStr(), GettrPostResponse.class);
             return postResponse.getResult().getData();
-        } catch (JsonSyntaxException e) {
-            logException(e);
-            throw e;
         } catch (Exception e) {
-            throw new GettrApiException(GettrAccountApiImpl.class.getName(), e.getMessage());
+            throw new GettrApiException("Error posteando un estado en Gettr: " + text, e);
         }
     }
 
@@ -90,13 +88,13 @@ public class GettrStatusApiImpl extends GettrBaseApi implements GettrStatusApi {
             request.addJsonFormData("content", jsonPost);
             
             ApiResponse response = this.client.executeApiRequest(request);
+            log.debug("Response postStatus con imagen: {}", response.getResponseStr());
             GettrPostResponse postResponse = this.gson.fromJson(response.getResponseStr(), GettrPostResponse.class);
             return postResponse.getResult().getData();
-        } catch (JsonSyntaxException e) {
-            logException(e);
+        } catch (GettrApiException e) {
             throw e;
         } catch (Exception e) {
-            throw new GettrApiException(GettrAccountApiImpl.class.getName(), e.getMessage());
+            throw new GettrApiException("Error posteando un estado con imagen en Gettr: " + text, e);
         }
     }
     
@@ -150,7 +148,7 @@ public class GettrStatusApiImpl extends GettrBaseApi implements GettrStatusApi {
             }
 
             if (imageId == null) {
-                throw new GettrApiException(GettrAccountApiImpl.class.getName(), "Ha ocurrido un subiendo la imagen " + filePath);
+                throw new GettrApiException("Ha ocurrido un subiendo la imagen " + filePath);
             }
             
             log.debug("He obtenido el ID de la imagen: " + imageId);
@@ -171,11 +169,8 @@ public class GettrStatusApiImpl extends GettrBaseApi implements GettrStatusApi {
             return rutaImagen;
         } catch (GettrApiException e) {
             throw e;
-        } catch (JsonSyntaxException e) {
-            logException(e);
-            throw e;
         } catch (Exception e) {
-            throw new GettrApiException(GettrAccountApiImpl.class.getName(), e.getMessage());
+            throw new GettrApiException("Error subiendo una imagen a Getr: " + filePath, e);
         }
     }
 
@@ -194,14 +189,12 @@ public class GettrStatusApiImpl extends GettrBaseApi implements GettrStatusApi {
             request.addApiHeader("X-app-auth", credentialStr);
             
             ApiResponse response = this.client.executeApiRequest(request);
+            log.debug("Response deleteStatus: {}", response.getResponseStr());
             GettrDeletePostResponse postResponse = this.gson.fromJson(response.getResponseStr(), GettrDeletePostResponse.class);
             
             return postResponse.isResult();
-        } catch (JsonSyntaxException e) {
-            logException(e);
-            throw e;
         } catch (Exception e) {
-            throw new GettrApiException(GettrAccountApiImpl.class.getName(), e.getMessage());
+            throw new GettrApiException("Error eliminado un estado en Getr con id: " + id, e);
         }
     }
     
@@ -241,11 +234,8 @@ public class GettrStatusApiImpl extends GettrBaseApi implements GettrStatusApi {
             }
             
             return new GettrStatusListResponse(statuses, cursor);
-        } catch (JsonSyntaxException e) {
-            logException(e);
-            throw e;
         } catch (Exception e) {
-            throw new GettrApiException(GettrBaseApi.class.getName(), e.getMessage());
+            throw new GettrApiException("Error recuperando una página del timeline de Getr", e);
         }
     }
 

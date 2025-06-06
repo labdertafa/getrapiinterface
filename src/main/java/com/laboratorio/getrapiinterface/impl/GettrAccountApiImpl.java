@@ -1,6 +1,5 @@
 package com.laboratorio.getrapiinterface.impl;
 
-import com.google.gson.JsonSyntaxException;
 import com.laboratorio.clientapilibrary.model.ApiMethodType;
 import com.laboratorio.clientapilibrary.model.ApiRequest;
 import com.laboratorio.clientapilibrary.model.ApiResponse;
@@ -19,9 +18,9 @@ import java.util.stream.Collectors;
 /**
  *
  * @author Rafael
- * @version 1.2
+ * @version 1.3
  * @created 05/09/2024
- * @updated 22/10/2024
+ * @updated 06/06/2025
  */
 public class GettrAccountApiImpl extends GettrBaseApi implements GettrAccountApi {
     public GettrAccountApiImpl(String accountId, String accessToken) {
@@ -44,14 +43,12 @@ public class GettrAccountApiImpl extends GettrBaseApi implements GettrAccountApi
             request.addApiHeader("Content-Type", "application/json");
             
             ApiResponse response = this.client.executeApiRequest(request);
+            log.debug("Response getAccountByUsername: {}", response.getResponseStr());
             
             GettrAccountResponse accountResponse = this.gson.fromJson(response.getResponseStr(), GettrAccountResponse.class);
             return accountResponse.getResult().getData();
-        } catch (JsonSyntaxException e) {
-            logException(e);
-            throw e;
         } catch (Exception e) {
-            throw new GettrApiException(GettrAccountApiImpl.class.getName(), e.getMessage());
+            throw new GettrApiException("Error recuperando los datos del usuario Gettr con username: " + username, e);
         }
     }
 
@@ -127,14 +124,12 @@ public class GettrAccountApiImpl extends GettrBaseApi implements GettrAccountApi
             request.addApiHeader("X-app-auth", credentialStr);
             
             ApiResponse response = this.client.executeApiRequest(request);
+            log.debug("Response followAccount: {}", response.getResponseStr());
             GettrFollowResponse followResponse = this.gson.fromJson(response.getResponseStr(), GettrFollowResponse.class);
             
             return followResponse.getRc().equals("OK");
-        } catch (JsonSyntaxException e) {
-            logException(e);
-            throw e;
         } catch (Exception e) {
-            throw new GettrApiException(GettrAccountApiImpl.class.getName(), e.getMessage());
+            throw new GettrApiException("Error siguiendo al usuario Gettr con id: " + userId, e);
         }
     }
 
@@ -154,14 +149,12 @@ public class GettrAccountApiImpl extends GettrBaseApi implements GettrAccountApi
             request.addApiHeader("X-app-auth", credentialStr);
             
             ApiResponse response = this.client.executeApiRequest(request);
+            log.debug("Response unfollowAccount: {}", response.getResponseStr());
             GettrFollowResponse followResponse = this.gson.fromJson(response.getResponseStr(), GettrFollowResponse.class);
             
             return followResponse.getRc().equals("OK");
-        } catch (JsonSyntaxException e) {
-            logException(e);
-            throw e;
         } catch (Exception e) {
-            throw new GettrApiException(GettrAccountApiImpl.class.getName(), e.getMessage());
+            throw new GettrApiException("Error dejando de seguir al usuario Gettr con id: " + userId, e);
         }
     }
 
@@ -181,9 +174,10 @@ public class GettrAccountApiImpl extends GettrBaseApi implements GettrAccountApi
             request1.addApiHeader("X-app-auth", credentialStr);
             
             ApiResponse response1 = this.client.executeApiRequest(request1);
+            log.debug("Response checkrelationship 1: {}", response1.getResponseStr());
             GettrRelationshipResponse relationshipResponse1 = this.gson.fromJson(response1.getResponseStr(), GettrRelationshipResponse.class);
             if (!relationshipResponse1.getRc().equals("OK")) {
-                throw new GettrApiException(GettrAccountApiImpl.class.getName(), "Ha ocurrido un error verificando la relación con " + userId);
+                throw new GettrApiException("Ha ocurrido un error verificando la relación con " + userId);
             }
             boolean following = false;
             if (relationshipResponse1.getResult().equalsIgnoreCase("y")) {
@@ -197,9 +191,10 @@ public class GettrAccountApiImpl extends GettrBaseApi implements GettrAccountApi
             request2.addApiHeader("X-app-auth", credentialStr);
             
             ApiResponse response2 = this.client.executeApiRequest(request2);
+            log.debug("Response checkrelationship 2: {}", response2.getResponseStr());
             GettrRelationshipResponse relationshipResponse2 = this.gson.fromJson(response2.getResponseStr(), GettrRelationshipResponse.class);
             if (!relationshipResponse2.getRc().equals("OK")) {
-                throw new GettrApiException(GettrAccountApiImpl.class.getName(), "Ha ocurrido un error verificando la relación con " + userId);
+                throw new GettrApiException("Ha ocurrido un error verificando la relación con " + userId);
             }
             boolean followedBy = false;
             if (relationshipResponse2.getResult().equalsIgnoreCase("y")) {
@@ -209,11 +204,8 @@ public class GettrAccountApiImpl extends GettrBaseApi implements GettrAccountApi
             return new GettrRelationship(userId, following, followedBy);
         } catch (GettrApiException e) {
             throw e;
-        } catch (JsonSyntaxException e) {
-            logException(e);
-            throw e;
         } catch (Exception e) {
-            throw new GettrApiException(GettrAccountApiImpl.class.getName(), e.getMessage());
+            throw new GettrApiException("Error comprobando la relación con el usuario Gettr con id: " + userId, e);
         }
     }
 }

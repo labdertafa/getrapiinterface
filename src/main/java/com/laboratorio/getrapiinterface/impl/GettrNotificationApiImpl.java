@@ -3,7 +3,6 @@ package com.laboratorio.getrapiinterface.impl;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.laboratorio.clientapilibrary.model.ApiMethodType;
 import com.laboratorio.clientapilibrary.model.ApiRequest;
@@ -22,7 +21,7 @@ import java.util.stream.Collectors;
  * @author Rafael
  * @version 1.1
  * @created 10/09/2024
- * @updated 05/10/2024
+ * @updated 06/06/2025
  */
 public class GettrNotificationApiImpl extends GettrBaseApi implements GettrNotificationApi {
     public GettrNotificationApiImpl(String accountId, String accessToken) {
@@ -64,11 +63,8 @@ public class GettrNotificationApiImpl extends GettrBaseApi implements GettrNotif
             }
             
             return new GettrNotificationListResponse(nuevaPosicionInicial, cursor, notifications);
-        } catch (JsonSyntaxException e) {
-            logException(e);
-            throw e;
         } catch (Exception e) {
-            throw new GettrApiException(GettrNotificationApiImpl.class.getName(), e.getMessage());
+            throw new GettrApiException("Error recuperando una página de notificaciones de Gettr", e);
         }
     }
 
